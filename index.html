@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>✨ Emoji Grid — Copy HTML Character Codes</title>
+
+  <!-- Emoji favicon -->
+  <link rel="icon" href='data:image/svg+xml;utf8,
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <text y="0.9em" font-size="90">✨</text>
+  </svg>'>
+
+  <style>
+    :root{
+      --bg:#0b0c10;
+      --panel:#12141a;
+      --panel2:#171a22;
+      --text:#e8eaf0;
+      --muted:#a7adbf;
+      --border:#262b3a;
+      --accent:#6aa6ff;
+
+      --emojiSize: 40px;
+      --modalEmojiSize: 64px;
+      --radius: 14px;
+
+      --scrollbar-track: rgba(255,255,255,0.04);
+      --scrollbar-thumb: rgba(106,166,255,0.45);
+      --scrollbar-thumb-hover: rgba(106,166,255,0.75);
+      --scrollbar-size: 10px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(106,166,255,.18), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(153,106,255,.16), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+
+    header{
+      padding:18px 18px 10px;
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0;
+      background: rgba(11,12,16,.78);
+      backdrop-filter: blur(10px);
+      z-index:10;
+    }
+
+    h1{
+      font-size:18px;
+      margin:0;
+      letter-spacing:.2px;
+      font-weight:800;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    h1 .spark{ font-size:20px; line-height:1; }
+    h1 .subtitle{ color:var(--muted); font-weight:600; font-size:14px; }
+
+    .sub{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .sub code{
+      background: rgba(0,0,0,.25);
+      border:1px solid var(--border);
+      padding:1px 6px;
+      border-radius:8px;
+      color:#dfe6ff;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .control{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-height:42px;
+      flex-wrap:wrap;
+    }
+    .control label{
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    input[type="search"]{
+      width:min(520px, 70vw);
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size:14px;
+    }
+    input[type="range"]{ width: 190px; }
+    select{
+      background: transparent;
+      border: none;
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+      max-width: 340px;
+    }
+
+    /* Layout uses CSS vars so we can collapse the sidebar cleanly */
+    .layout{
+      --sidebarW: 280px;
+      --gap: 14px;
+      display:grid;
+      grid-template-columns: var(--sidebarW) 1fr;
+      gap: var(--gap);
+      padding:14px 14px 18px;
+      transition: grid-template-columns .2s ease;
+    }
+    .layout.sidebar-collapsed{
+      --sidebarW: 0px;
+      --gap: 0px;
+      grid-template-columns: 0px 1fr;
+    }
+
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr !important; }
+      .layout.sidebar-collapsed{ grid-template-columns: 1fr !important; }
+      aside{ display:none !important; }
+    }
+
+    aside{
+      background: rgba(18,20,26,.82);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:12px;
+      position: sticky;
+      top: 132px;
+      height: fit-content;
+      overflow: hidden;
+      transition: opacity .15s ease, transform .15s ease, width .2s ease, padding .2s ease, border-width .2s ease;
+    }
+
+    /* When collapsed, sidebar visually disappears and doesn't take space */
+    .layout.sidebar-collapsed aside{
+      opacity:0;
+      transform: translateX(-8px);
+      width: 0;
+      padding: 0;
+      border-width: 0;
+      pointer-events:none;
+    }
+
+    .catTitle{
+      font-size:12px;
+      color:var(--muted);
+      text-transform: uppercase;
+      letter-spacing:.12em;
+      margin:4px 8px 10px;
+    }
+    .catList{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-height: 56vh;
+      overflow:auto;
+      padding-right: 4px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    button.cat{
+      width:100%;
+      text-align:left;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      padding:10px 10px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      transition: transform .04s ease, background .15s ease, border-color .15s ease;
+    }
+    button.cat:hover{ background: rgba(255,255,255,.06); border-color: rgba(106,166,255,.35); }
+    button.cat:active{ transform: translateY(1px); }
+    button.cat[aria-current="true"]{ background: rgba(106,166,255,.14); border-color: rgba(106,166,255,.55); }
+
+    .pill{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding:2px 8px;
+      background: rgba(0,0,0,.22);
+      white-space:nowrap;
+    }
+
+    main{
+      background: rgba(18,20,26,.72);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      overflow:hidden;
+      min-width: 0;
+    }
+    .mainHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+      background: rgba(23,26,34,.55);
+      flex-wrap:wrap;
+    }
+    .mainHeader .left{ display:flex; flex-direction:column; gap:6px; }
+    .mainHeader .h{ font-weight:800; margin:0; font-size:14px; }
+    .mainHeader .meta{ margin:0; font-size:12px; color:var(--muted); line-height:1.35; }
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .hint code{
+      background: rgba(0,0,0,.25);
+      border:1px solid var(--border);
+      padding:2px 6px;
+      border-radius: 8px;
+      color: #dfe6ff;
+    }
+
+    .toolbarRow{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .iconBtn{
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-size: 13px;
+      white-space:nowrap;
+      transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .04s ease;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .iconBtn:hover{
+      border-color: rgba(106,166,255,.35);
+      background: rgba(255,255,255,.07);
+    }
+    .iconBtn:active{ transform: translateY(1px); }
+    .iconBtn:focus{
+      outline:none;
+      border-color: rgba(106,166,255,.75);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.18);
+    }
+
+    .grid{
+      padding:14px;
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+      gap:10px;
+      outline: none;
+    }
+
+    .cell{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      border-radius: 14px;
+      padding:10px 8px;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      min-height: 102px;
+      position: relative;
+      transition: transform .05s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .cell:hover{ background: rgba(255,255,255,.06); border-color: rgba(106,166,255,.35); }
+    .cell:active{ transform: translateY(1px); }
+    .cell:focus{
+      outline: none;
+      border-color: rgba(106,166,255,.75);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.18);
+    }
+
+    .emoji{
+      font-size: var(--emojiSize);
+      line-height:1;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,.25));
+    }
+    .name{
+      font-size:11px;
+      text-align:center;
+      color: var(--muted);
+      line-height:1.2;
+      max-width: 100%;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space:nowrap;
+    }
+    .toneBadge{
+      position:absolute;
+      top:8px;
+      right:8px;
+      font-size:10px;
+      color: var(--muted);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding:2px 6px;
+      background: rgba(0,0,0,.22);
+    }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(18,20,26,.92);
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding:10px 14px;
+      font-size:13px;
+      color: var(--text);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .2s ease, transform .2s ease;
+      backdrop-filter: blur(10px);
+      z-index: 50;
+    }
+    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-2px); }
+    .toast .small{ color:var(--muted); font-size:12px; }
+
+    .footerRow{
+      padding:12px 14px;
+      border-top:1px solid var(--border);
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    /* Modal */
+    .modalOverlay{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:100;
+      padding: 16px;
+    }
+    .modalOverlay.open{ display:flex; }
+
+    .modal{
+      width: min(720px, 96vw);
+      max-height: min(86vh, 860px);
+      background: rgba(18,20,26,.96);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow:hidden;
+      box-shadow: 0 20px 70px rgba(0,0,0,.45);
+      display:flex;
+      flex-direction:column;
+    }
+    .modalHead{
+      flex: 0 0 auto;
+      padding: 12px 14px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(23,26,34,.55);
+    }
+    .modalTitle{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:0;
+    }
+    .modalTitle strong{ font-size:14px; }
+    .modalTitle span{ font-size:12px; color: var(--muted); }
+
+    .closeBtn{
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-size: 13px;
+      white-space:nowrap;
+      transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .closeBtn:hover{ border-color: rgba(106,166,255,.35); background: rgba(255,255,255,.07); }
+    .closeBtn:focus{
+      outline: none;
+      border-color: rgba(106,166,255,.75);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.18);
+    }
+
+    .variantGrid{
+      flex: 1 1 auto;
+      overflow: auto;
+      padding: 14px;
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .variant{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.03);
+      border-radius: 16px;
+      padding: 12px 10px;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 8px;
+      user-select:none;
+      transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .05s ease;
+    }
+    .variant:hover{ background: rgba(255,255,255,.06); border-color: rgba(106,166,255,.35); }
+    .variant:active{ transform: translateY(1px); }
+    .variant:focus{
+      outline: none;
+      border-color: rgba(106,166,255,.75);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.18);
+    }
+    .variant .big{ font-size: var(--modalEmojiSize); line-height: 1; }
+    .variant .label{ font-size: 12px; color: var(--muted); text-align:center; }
+
+    /* Custom Scrollbars (Dark UI) */
+    .variantGrid,
+    .catList {
+      scrollbar-width: thin; /* Firefox */
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+    .variantGrid::-webkit-scrollbar,
+    .catList::-webkit-scrollbar {
+      width: var(--scrollbar-size);
+      height: var(--scrollbar-size);
+    }
+    .variantGrid::-webkit-scrollbar-track,
+    .catList::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border-radius: 999px;
+    }
+    .variantGrid::-webkit-scrollbar-thumb,
+    .catList::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--scrollbar-thumb), rgba(106,166,255,0.25));
+      border-radius: 999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      transition: background 0.2s ease;
+    }
+    .variantGrid::-webkit-scrollbar-thumb:hover,
+    .catList::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, var(--scrollbar-thumb-hover), rgba(106,166,255,0.45));
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>
+      <span class="spark" aria-hidden="true">✨</span>
+      <span>Emoji Grid</span>
+      <span class="subtitle">— click to copy HTML character codes</span>
+    </h1>
+
+    <p class="sub">
+      <!-- Uses local <code>/emoji-test.txt</code>. Put <code>emoji-test.txt</code> in your app’s <strong>public</strong> folder so it’s available at <code>http://localhost:3000/emoji-test.txt</code>. -->
+      Tone-able emojis open a picker modal.
+    </p>
+
+    <div class="controls">
+      <div class="control" style="flex:1 1 360px;">
+        <label for="search">Search</label>
+        <input id="search" type="search" placeholder="Filter by name, emoji, U+ code, group…" autocomplete="off" />
+      </div>
+
+      <div class="control">
+        <label for="subgroup">Subgroup</label>
+        <select id="subgroup">
+          <option value="__all__">All subgroups</option>
+        </select>
+      </div>
+
+      <div class="control">
+        <label for="size">Size</label>
+        <input id="size" type="range" min="18" max="120" value="40" />
+        <span id="sizeVal" style="font-size:12px;color:var(--muted);min-width:36px;text-align:right;">40px</span>
+      </div>
+
+      <div class="control">
+        <label>Copy</label>
+        <select id="copyMode">
+          <option value="html-hex" selected>HTML entities (hex)</option>
+          <option value="html-dec">HTML entities (decimal)</option>
+          <option value="unicode">Unicode (U+…)</option>
+          <option value="raw">Raw emoji</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout" id="layout">
+    <aside id="sidebar">
+      <div class="catTitle">Categories (Unicode groups)</div>
+      <div class="catList" id="categories"></div>
+    </aside>
+
+    <main>
+      <div class="mainHeader">
+        <div class="left">
+          <p class="h" id="currentCategory">All</p>
+          <p class="meta" id="resultMeta">Loading…</p>
+
+          <div class="toolbarRow">
+            <button class="iconBtn" id="toggleSidebar" type="button" aria-expanded="true" aria-controls="sidebar" title="Toggle categories panel">
+              <span aria-hidden="true">🧭</span>
+              <span id="toggleSidebarLabel">Hide categories</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hint">
+          <span>Example copied value:</span>
+          <code id="exampleCode">&#x1F600;</code>
+          <span class="pill" id="modePill">HTML (HEX)</span>
+        </div>
+      </div>
+
+      <div class="grid" id="grid" aria-live="polite" role="grid" aria-label="Emoji grid"></div>
+
+      <div class="footerRow">
+        <span>Keyboard: Arrow keys to move • Enter/Space to copy/open tones • Esc closes modal</span>
+        <span id="emojiBadge" class="pill">Loading emoji metadata…</span>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <strong>Copied</strong>
+    <span class="small" id="toastText"></span>
+  </div>
+
+  <!-- Modal -->
+  <div class="modalOverlay" id="modalOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modalHead">
+        <div class="modalTitle">
+          <strong id="modalTitle">Choose a skin tone</strong>
+          <span id="modalSubtitle">Click a variant to copy</span>
+        </div>
+        <button class="closeBtn" id="closeModal" type="button">Close (Esc)</button>
+      </div>
+      <div class="variantGrid" id="variantGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // CONFIG
+    // -------------------------------------------------------------------------
+    const EMOJI_TEST_URLS = ["/emoji-test.txt"];
+    const ALLOW_STATUS = new Set(["fully-qualified", "minimally-qualified"]);
+
+    const SKIN_MODIFIERS = new Set([
+      "\u{1F3FB}", "\u{1F3FC}", "\u{1F3FD}", "\u{1F3FE}", "\u{1F3FF}"
+    ]);
+
+    const TONE_LABELS = new Map([
+      ["", "default"],
+      ["\u{1F3FB}", "light"],
+      ["\u{1F3FC}", "medium-light"],
+      ["\u{1F3FD}", "medium"],
+      ["\u{1F3FE}", "medium-dark"],
+      ["\u{1F3FF}", "dark"],
+    ]);
+
+    // -------------------------------------------------------------------------
+    // STATE / DATA
+    // -------------------------------------------------------------------------
+    const state = {
+      group: "All",
+      subgroup: "__all__",
+      query: "",
+      size: 40,
+      copyMode: "html-hex",
+      sidebarCollapsed: false,
+    };
+
+    let EMOJIS = [];
+    let DISPLAY = [];
+    let TONE_MAP = new Map();
+
+    // -------------------------------------------------------------------------
+    // DOM
+    // -------------------------------------------------------------------------
+    const $layout = document.getElementById("layout");
+    const $sidebar = document.getElementById("sidebar");
+    const $toggleSidebar = document.getElementById("toggleSidebar");
+    const $toggleSidebarLabel = document.getElementById("toggleSidebarLabel");
+
+    const $categories = document.getElementById("categories");
+    const $grid = document.getElementById("grid");
+    const $currentCategory = document.getElementById("currentCategory");
+    const $resultMeta = document.getElementById("resultMeta");
+    const $search = document.getElementById("search");
+    const $size = document.getElementById("size");
+    const $sizeVal = document.getElementById("sizeVal");
+    const $toast = document.getElementById("toast");
+    const $toastText = document.getElementById("toastText");
+    const $exampleCode = document.getElementById("exampleCode");
+    const $copyMode = document.getElementById("copyMode");
+    const $modePill = document.getElementById("modePill");
+    const $subgroup = document.getElementById("subgroup");
+    const $emojiBadge = document.getElementById("emojiBadge");
+
+    const $modalOverlay = document.getElementById("modalOverlay");
+    const $variantGrid = document.getElementById("variantGrid");
+    const $modalTitle = document.getElementById("modalTitle");
+    const $modalSubtitle = document.getElementById("modalSubtitle");
+    const $closeModal = document.getElementById("closeModal");
+
+    function setEmojiSize(px){
+      document.documentElement.style.setProperty("--emojiSize", `${px}px`);
+      $sizeVal.textContent = `${px}px`;
+      document.documentElement.style.setProperty("--modalEmojiSize", `${Math.max(48, Math.min(96, px + 18))}px`);
+    }
+
+    function setSidebarCollapsed(collapsed){
+      state.sidebarCollapsed = collapsed;
+      $layout.classList.toggle("sidebar-collapsed", collapsed);
+      $toggleSidebar.setAttribute("aria-expanded", String(!collapsed));
+      $toggleSidebarLabel.textContent = collapsed ? "Show categories" : "Hide categories";
+
+      // When expanding, keep sidebar scrolled where it was.
+      // When collapsing, move focus into grid for a better keyboard experience.
+      if (collapsed) $grid.focus?.();
+    }
+
+    // -------------------------------------------------------------------------
+    // HELPERS
+    // -------------------------------------------------------------------------
+    function codePoints(str){
+      const cps = [];
+      for (const ch of str) cps.push(ch.codePointAt(0));
+      return cps;
+    }
+    function toHtmlEntitiesHex(emoji){
+      return codePoints(emoji).map(cp => `&#x${cp.toString(16).toUpperCase()};`).join("");
+    }
+    function toHtmlEntitiesDec(emoji){
+      return codePoints(emoji).map(cp => `&#${cp};`).join("");
+    }
+    function toUnicodeLabel(emoji){
+      return codePoints(emoji).map(cp => `U+${cp.toString(16).toUpperCase().padStart(4,"0")}`).join(" ");
+    }
+    function normalize(s){
+      return (s ?? "")
+        .toLowerCase()
+        .normalize("NFKD")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        return true;
+      }catch{
+        try{
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.setAttribute("readonly","");
+          ta.style.position="fixed";
+          ta.style.left="-9999px";
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+          return true;
+        }catch{
+          return false;
+        }
+      }
+    }
+    function getCopyTextForEmoji(emoji){
+      switch (state.copyMode){
+        case "raw": return emoji;
+        case "unicode": return toUnicodeLabel(emoji);
+        case "html-dec": return toHtmlEntitiesDec(emoji);
+        case "html-hex":
+        default: return toHtmlEntitiesHex(emoji);
+      }
+    }
+
+    function stripSkin(emoji){
+      const out = [];
+      for (const ch of emoji){
+        if (!SKIN_MODIFIERS.has(ch)) out.push(ch);
+      }
+      return out.join("");
+    }
+
+    function toneLabelFromEmoji(emoji){
+      for (const ch of emoji){
+        if (SKIN_MODIFIERS.has(ch)) return TONE_LABELS.get(ch) || "tone";
+      }
+      return "default";
+    }
+
+    let toastTimer = null;
+    function showToast(text){
+      $toastText.textContent = text;
+      $toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => $toast.classList.remove("show"), 1400);
+    }
+
+    async function fetchFirst(urls){
+      let lastErr = null;
+      for (const url of urls){
+        try{
+          const res = await fetch(url, { cache: "no-store" });
+          if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+          return await res.text();
+        }catch (e){
+          lastErr = e;
+        }
+      }
+      throw lastErr || new Error("All fetch attempts failed.");
+    }
+
+    // -------------------------------------------------------------------------
+    // PARSE emoji-test.txt
+    // -------------------------------------------------------------------------
+    function parseEmojiTest(text){
+      const out = [];
+      let group = "Unknown";
+      let subgroup = "Unknown";
+
+      const lines = text.split(/\r?\n/);
+      for (const line of lines){
+        if (!line) continue;
+
+        if (line.startsWith("# group:")){
+          group = line.replace("# group:","").trim();
+          continue;
+        }
+        if (line.startsWith("# subgroup:")){
+          subgroup = line.replace("# subgroup:","").trim();
+          continue;
+        }
+        if (line.startsWith("#")) continue;
+        if (!line.includes(";") || !line.includes("#")) continue;
+
+        const semi = line.split(";");
+        if (semi.length < 2) continue;
+        const status = semi[1].trim().split(/\s+/)[0];
+        if (!ALLOW_STATUS.has(status)) continue;
+
+        const hashIdx = line.indexOf("#");
+        const afterHash = line.slice(hashIdx + 1).trim();
+        const bits = afterHash.split(/\s+/);
+        const emojiChar = bits[0];
+
+        const eTokenIndex = bits.findIndex(t => /^E\d+(\.\d+)?$/.test(t));
+        const name = eTokenIndex !== -1 ? bits.slice(eTokenIndex + 1).join(" ").trim()
+                                        : bits.slice(1).join(" ").trim();
+
+        if (!emojiChar || !name) continue;
+        out.push({ e: emojiChar, name, group, subgroup, status });
+      }
+
+      const seen = new Set();
+      return out.filter(x => {
+        const k = x.e + "|" + x.name;
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+    }
+
+    function parseEmojiTestMeta(text){
+      const meta = { unicodeVersion: null, emojiVersion: null, date: null };
+      const lines = text.split(/\r?\n/).slice(0, 120);
+
+      for (const line of lines){
+        const m1 = line.match(/^#\s*Version:\s*(.+)\s*$/i);
+        if (m1) meta.unicodeVersion = m1[1].trim();
+
+        const m2 = line.match(/^#\s*Emoji Version:\s*(.+)\s*$/i);
+        if (m2) meta.emojiVersion = m2[1].trim();
+
+        const m3 = line.match(/^#\s*Date:\s*(.+)\s*$/i);
+        if (m3) meta.date = m3[1].trim();
+      }
+
+      if (!meta.emojiVersion && meta.unicodeVersion) meta.emojiVersion = meta.unicodeVersion;
+      return meta;
+    }
+
+    function setFooterBadgeFromMeta(meta){
+      if (!$emojiBadge) return;
+      const parts = [];
+      if (meta.unicodeVersion) parts.push(`Unicode ${meta.unicodeVersion}`);
+      if (meta.emojiVersion) parts.push(`Emoji ${meta.emojiVersion}`);
+      if (meta.date) parts.push(meta.date.split(",")[0]);
+      $emojiBadge.textContent = parts.length ? parts.join(" • ") : "Emoji metadata unavailable";
+      $emojiBadge.title = meta.date ? `Source: emoji-test.txt\n${meta.date}` : "Source: emoji-test.txt";
+    }
+
+    // -------------------------------------------------------------------------
+    // TONE GROUPING
+    // -------------------------------------------------------------------------
+    function buildToneMap(items){
+      const map = new Map();
+
+      for (const it of items){
+        const base = stripSkin(it.e);
+        let entry = map.get(base);
+        if (!entry){
+          entry = { baseKey: base, baseItem: null, variants: [] };
+          map.set(base, entry);
+        }
+
+        const isDefault = (stripSkin(it.e) === it.e);
+        if (isDefault){
+          if (!entry.baseItem) entry.baseItem = it;
+          else if (entry.baseItem.status !== "fully-qualified" && it.status === "fully-qualified") entry.baseItem = it;
+        } else {
+          entry.variants.push(it);
+        }
+      }
+
+      const toneOrder = new Map([
+        ["light", 1],
+        ["medium-light", 2],
+        ["medium", 3],
+        ["medium-dark", 4],
+        ["dark", 5],
+      ]);
+
+      for (const entry of map.values()){
+        if (!entry.baseItem && entry.variants.length){
+          entry.baseItem = { ...entry.variants[0], e: entry.baseKey, name: entry.variants[0].name.replace(/\s*\(.+\)\s*$/, "") };
+        }
+        entry.variants.sort((a,b) => (toneOrder.get(toneLabelFromEmoji(a.e))||99) - (toneOrder.get(toneLabelFromEmoji(b.e))||99));
+      }
+
+      return map;
+    }
+
+    function buildDisplayList(items, toneMap){
+      const toneable = new Set();
+      for (const [base, entry] of toneMap.entries()){
+        if (entry.variants.length > 0) toneable.add(base);
+      }
+
+      const seen = new Set();
+      const display = [];
+
+      for (const it of items){
+        const base = stripSkin(it.e);
+        if (seen.has(base)) continue;
+
+        const entry = toneMap.get(base);
+        const baseItem = entry?.baseItem || it;
+
+        display.push({
+          ...baseItem,
+          _baseKey: base,
+          _toneable: toneable.has(base)
+        });
+
+        seen.add(base);
+      }
+
+      return display;
+    }
+
+    // -------------------------------------------------------------------------
+    // CATEGORY UI
+    // -------------------------------------------------------------------------
+    function getGroups(items){
+      const groups = new Map();
+      groups.set("All", items.length);
+      for (const item of items){
+        groups.set(item.group, (groups.get(item.group) ?? 0) + 1);
+      }
+      const rest = [...groups.keys()].filter(k => k !== "All").sort((a,b)=>a.localeCompare(b));
+      return ["All", ...rest].map(g => ({ group: g, count: groups.get(g) ?? 0 }));
+    }
+
+    function getSubgroupsForGroup(items, group){
+      const set = new Map();
+      for (const item of items){
+        if (group !== "All" && item.group !== group) continue;
+        set.set(item.subgroup, (set.get(item.subgroup) ?? 0) + 1);
+      }
+      const entries = [...set.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+      return entries.map(([subgroup, count]) => ({ subgroup, count }));
+    }
+
+    function renderCategories(){
+      const groups = getGroups(DISPLAY);
+      $categories.innerHTML = "";
+
+      for (const g of groups){
+        const btn = document.createElement("button");
+        btn.className = "cat";
+        btn.type = "button";
+        btn.setAttribute("aria-current", String(state.group === g.group));
+        btn.innerHTML = `<span>${g.group}</span><span class="pill">${g.count.toLocaleString()}</span>`;
+        btn.addEventListener("click", () => {
+          state.group = g.group;
+          state.subgroup = "__all__";
+          renderSubgroupOptions();
+          renderGrid();
+          renderCategories();
+        });
+        $categories.appendChild(btn);
+      }
+    }
+
+    function renderSubgroupOptions(){
+      const options = getSubgroupsForGroup(DISPLAY, state.group);
+      const current = state.subgroup;
+
+      $subgroup.innerHTML = "";
+      const allOpt = document.createElement("option");
+      allOpt.value = "__all__";
+      allOpt.textContent = "All subgroups";
+      $subgroup.appendChild(allOpt);
+
+      for (const o of options){
+        const opt = document.createElement("option");
+        opt.value = o.subgroup;
+        opt.textContent = `${o.subgroup} (${o.count.toLocaleString()})`;
+        $subgroup.appendChild(opt);
+      }
+
+      $subgroup.value = options.some(o => o.subgroup === current) ? current : "__all__";
+      state.subgroup = $subgroup.value;
+    }
+
+    function computeFiltered(){
+      const q = normalize(state.query);
+      const sub = state.subgroup;
+
+      return DISPLAY.filter(item => {
+        const inGroup = (state.group === "All") || (item.group === state.group);
+        if (!inGroup) return false;
+
+        const inSub = (sub === "__all__") || (item.subgroup === sub);
+        if (!inSub) return false;
+
+        if (!q) return true;
+
+        const hay = `${item.name} ${item.e} ${toUnicodeLabel(item.e)} ${item.group} ${item.subgroup}`;
+        return normalize(hay).includes(q);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // MODAL
+    // -------------------------------------------------------------------------
+    let lastFocused = null;
+
+    function openModalForBase(baseKey){
+      const entry = TONE_MAP.get(baseKey);
+      if (!entry) return;
+
+      const choices = [entry.baseItem, ...entry.variants].filter(Boolean);
+
+      $variantGrid.innerHTML = "";
+      $modalTitle.textContent = entry.baseItem?.name || "Choose a skin tone";
+      $modalSubtitle.textContent = "Click a variant to copy";
+
+      for (const it of choices){
+        const label = toneLabelFromEmoji(it.e);
+
+        const card = document.createElement("div");
+        card.className = "variant";
+        card.setAttribute("role", "button");
+        card.tabIndex = 0;
+        card.title = `${entry.baseItem?.name ?? "Emoji"} — ${label}`;
+
+        card.innerHTML = `
+          <div class="big" aria-hidden="true">${it.e}</div>
+          <div class="label">${label}</div>
+        `;
+
+        const activate = async () => {
+          const text = getCopyTextForEmoji(it.e);
+          const ok = await copyText(text);
+          showToast(ok ? (text.length > 62 ? (text.slice(0, 62) + "…") : text) : "Copy failed (clipboard blocked)");
+          closeModal();
+        };
+
+        card.addEventListener("click", activate);
+        card.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            activate();
+          }
+        });
+
+        $variantGrid.appendChild(card);
+      }
+
+      lastFocused = document.activeElement;
+      document.body.style.overflow = "hidden";
+
+      $modalOverlay.classList.add("open");
+      $modalOverlay.setAttribute("aria-hidden","false");
+      $closeModal.focus();
+    }
+
+    function closeModal(){
+      $modalOverlay.classList.remove("open");
+      $modalOverlay.setAttribute("aria-hidden","true");
+      $variantGrid.innerHTML = "";
+      document.body.style.overflow = "";
+
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+      lastFocused = null;
+    }
+
+    $closeModal.addEventListener("click", closeModal);
+    $modalOverlay.addEventListener("click", (e) => {
+      if (e.target === $modalOverlay) closeModal();
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && $modalOverlay.classList.contains("open")) closeModal();
+    });
+
+    // -------------------------------------------------------------------------
+    // KEYBOARD NAV: roving tabindex in grid
+    // -------------------------------------------------------------------------
+    function enableGridKeyboardNav(gridEl, cells){
+      if (gridEl._kbHandler) gridEl.removeEventListener("keydown", gridEl._kbHandler);
+
+      function setActive(index){
+        if (!cells.length) return;
+        index = Math.max(0, Math.min(cells.length - 1, index));
+        for (let i = 0; i < cells.length; i++){
+          cells[i].tabIndex = (i === index) ? 0 : -1;
+        }
+        cells[index].focus();
+      }
+
+      function colsCount(){
+        if (!cells.length) return 1;
+        const firstTop = cells[0].offsetTop;
+        let cols = 0;
+        for (const c of cells){
+          if (c.offsetTop !== firstTop) break;
+          cols++;
+        }
+        return Math.max(1, cols);
+      }
+
+      gridEl._kbHandler = (e) => {
+        const active = document.activeElement;
+        const idx = cells.indexOf(active);
+        if (idx === -1) return;
+
+        const cols = colsCount();
+        let next = idx;
+
+        switch (e.key){
+          case "ArrowRight": next = idx + 1; break;
+          case "ArrowLeft": next = idx - 1; break;
+          case "ArrowDown": next = idx + cols; break;
+          case "ArrowUp": next = idx - cols; break;
+          case "Home": next = 0; break;
+          case "End": next = cells.length - 1; break;
+          case "PageDown": next = idx + cols * 5; break;
+          case "PageUp": next = idx - cols * 5; break;
+          case "Enter":
+          case " ":
+            e.preventDefault();
+            active.click();
+            return;
+          default:
+            return;
+        }
+
+        e.preventDefault();
+        setActive(next);
+      };
+
+      gridEl.addEventListener("keydown", gridEl._kbHandler);
+    }
+
+    // -------------------------------------------------------------------------
+    // RENDER GRID
+    // -------------------------------------------------------------------------
+    function renderGrid(){
+      const filtered = computeFiltered();
+
+      $currentCategory.textContent =
+        state.group === "All" ? "All" :
+        (state.subgroup === "__all__" ? state.group : `${state.group} / ${state.subgroup}`);
+
+      $resultMeta.textContent =
+        `${filtered.length.toLocaleString()} of ${DISPLAY.length.toLocaleString()} shown (source entries: ${EMOJIS.length.toLocaleString()})`;
+
+      const sample = filtered[0] ?? DISPLAY[0];
+      if (sample) $exampleCode.textContent = getCopyTextForEmoji(sample.e);
+
+      const label =
+        state.copyMode === "raw" ? "RAW" :
+        state.copyMode === "unicode" ? "UNICODE" :
+        state.copyMode === "html-dec" ? "HTML (DEC)" : "HTML (HEX)";
+      $modePill.textContent = label;
+
+      $grid.innerHTML = "";
+
+      if (!filtered.length){
+        const empty = document.createElement("div");
+        empty.style.padding = "18px 14px";
+        empty.style.color = "var(--muted)";
+        empty.textContent = "No matches. Try a different group/subgroup or search term.";
+        $grid.appendChild(empty);
+        return;
+      }
+
+      const focusable = [];
+
+      for (const item of filtered){
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.setAttribute("role","gridcell");
+        cell.tabIndex = (focusable.length === 0) ? 0 : -1;
+
+        cell.title = item._toneable ? `${item.name} (click to choose skin tone)` : item.name;
+        cell.setAttribute("aria-label", item._toneable ? `${item.name}, choose skin tone` : `Copy ${item.name}`);
+
+        cell.innerHTML = `
+          <div class="emoji" aria-hidden="true">${item.e}</div>
+          <div class="name">${item.name}</div>
+          ${item._toneable ? `<div class="toneBadge">tones</div>` : ``}
+        `;
+
+        const activate = async () => {
+          if (item._toneable){
+            openModalForBase(item._baseKey);
+            return;
+          }
+          const text = getCopyTextForEmoji(item.e);
+          const ok = await copyText(text);
+          showToast(ok ? (text.length > 62 ? (text.slice(0, 62) + "…") : text) : "Copy failed (clipboard blocked)");
+        };
+
+        cell.addEventListener("click", activate);
+        cell.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            activate();
+          }
+        });
+
+        $grid.appendChild(cell);
+        focusable.push(cell);
+      }
+
+      enableGridKeyboardNav($grid, focusable);
+    }
+
+    function renderAll(){
+      renderCategories();
+      renderSubgroupOptions();
+      renderGrid();
+    }
+
+    // -------------------------------------------------------------------------
+    // EVENTS
+    // -------------------------------------------------------------------------
+    $search.addEventListener("input", (e) => { state.query = e.target.value; renderGrid(); });
+    $subgroup.addEventListener("change", (e) => { state.subgroup = e.target.value; renderGrid(); });
+    $size.addEventListener("input", (e) => { state.size = Number(e.target.value); setEmojiSize(state.size); });
+    $copyMode.addEventListener("change", (e) => { state.copyMode = e.target.value; renderGrid(); });
+
+    $toggleSidebar.addEventListener("click", () => {
+      setSidebarCollapsed(!state.sidebarCollapsed);
+    });
+
+    // Also allow "\" to toggle sidebar quickly (nice dev-tool vibe)
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "\\" && !e.metaKey && !e.ctrlKey && !e.altKey){
+        const tag = (document.activeElement && document.activeElement.tagName) || "";
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+        setSidebarCollapsed(!state.sidebarCollapsed);
+      }
+    });
+
+    // -------------------------------------------------------------------------
+    // INIT
+    // -------------------------------------------------------------------------
+    (async function init(){
+      setEmojiSize(state.size);
+
+      const txt = await fetchFirst(EMOJI_TEST_URLS);
+
+      const meta = parseEmojiTestMeta(txt);
+      setFooterBadgeFromMeta(meta);
+
+      EMOJIS = parseEmojiTest(txt);
+      TONE_MAP = buildToneMap(EMOJIS);
+      DISPLAY = buildDisplayList(EMOJIS, TONE_MAP);
+
+      renderAll();
+      setSidebarCollapsed(false);
+    })().catch(err => {
+      console.error(err);
+      $grid.innerHTML = `<div style="padding:18px 14px;color:var(--muted);">
+        Couldn’t load <code>/emoji-test.txt</code>. Put <code>emoji-test.txt</code> in your <strong>public/</strong> folder so it is served at <code>/emoji-test.txt</code>.
+        <br><br>
+        Error: <code>${String(err).replace(/</g,"&lt;")}</code>
+      </div>`;
+      $resultMeta.textContent = "Failed to load emoji data.";
+      if ($emojiBadge) $emojiBadge.textContent = "emoji-test.txt not found";
+    });
+  </script>
+</body>
+</html>
