@@ -1,6 +1,6 @@
 {
-  "name": "Emoji Grid",
-  "short_name": "EmojiGrid",
+  "name": "Emoji Viewer",
+  "short_name": "EmojiViewer",
   "description": "Browse and copy HTML character codes for all Unicode emojis",
   "start_url": "/",
   "display": "standalone",
