@@ -1,4 +1,4 @@
-# Emoji Grid
+# Emoji Viewer
 
 A single-page emoji browser and copy tool. Click any emoji to copy it as an HTML character code (or Unicode, or raw emoji). Tone-able emojis open a skin tone picker.
 
