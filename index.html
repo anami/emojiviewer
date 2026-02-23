@@ -11,6 +11,14 @@
     <text y="0.9em" font-size="90">✨</text>
   </svg>'>
 
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0b0c10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Emoji Grid" />
+  <link rel="apple-touch-icon" href="/icons/icon.svg" />
+
   <style>
     :root{
       --bg:#0b0c10;
@@ -1261,6 +1269,15 @@
       $resultMeta.textContent = "Failed to load emoji data.";
       if ($emojiBadge) $emojiBadge.textContent = "emoji-test.txt not found";
     });
+
+    // -------------------------------------------------------------------------
+    // SERVICE WORKER
+    // -------------------------------------------------------------------------
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
+      });
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<!-- Open this file in a browser to generate icon-192.png and icon-512.png.
+     Right-click each canvas → "Save image as" and save to this icons/ folder. -->
+<html>
+<body style="background:#0b0c10;color:#fff;font-family:sans-serif;padding:20px">
+<h2>Icon Generator — right-click each image to save</h2>
+<script>
+  function makeIcon(size) {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const r = size * 0.15;
+
+    // Rounded rect background
+    ctx.fillStyle = '#0b0c10';
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.arcTo(size, 0, size, size, r);
+    ctx.arcTo(size, size, 0, size, r);
+    ctx.arcTo(0, size, 0, 0, r);
+    ctx.arcTo(0, 0, size, 0, r);
+    ctx.closePath();
+    ctx.fill();
+
+    // Emoji
+    ctx.font = `${size * 0.62}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('✨', size / 2, size / 2 + size * 0.04);
+
+    const img = document.createElement('img');
+    img.src = canvas.toDataURL('image/png');
+    img.title = `icon-${size}.png`;
+    img.style.cssText = 'display:block;margin:12px 0;cursor:pointer;border:1px solid #333';
+
+    const label = document.createElement('p');
+    label.textContent = `icon-${size}.png — right-click → Save image as → save as "icon-${size}.png" in this folder`;
+
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `icon-${size}.png`;
+    a.textContent = `Download icon-${size}.png`;
+    a.style.cssText = 'color:#6aa6ff;display:block;margin-bottom:20px';
+
+    document.body.appendChild(label);
+    document.body.appendChild(img);
+    document.body.appendChild(a);
+  }
+
+  makeIcon(192);
+  makeIcon(512);
+</script>
+</body>
+</html>
